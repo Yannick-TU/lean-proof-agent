@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+
+# Secrets: never commit
+.env
+
+# Lean build artifacts (several GB, restored with `lake exe cache get`)
+lean_workspace/.lake/
+
+# Personal Lean scratch file
+lean_workspace/Playground.lean
+
+# Generated agent run logs
+runs/
+
+# OS / editor
+.DS_Store
+.idea/

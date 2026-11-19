@@ -1,0 +1,23 @@
+[project]
+name = "lean-proof-agent"
+version = "0.1.0"
+description = "Claude Agent for lean proofs"
+authors = [
+    {name = "Yannick"}
+]
+requires-python = ">=3.13"
+dependencies = [
+    "anthropic (>=2.10.0,<3.0.0)",
+    "python-dotenv (>=1.2.4,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.2.0,<10.0.0)",
+    "ruff (>=0.17.5,<0.18.0)"
+]
