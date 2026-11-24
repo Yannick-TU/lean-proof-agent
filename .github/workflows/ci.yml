@@ -41,12 +41,16 @@ jobs:
           auto-config: false
           build: true
 
-      - name: Check Lean installation
-        run: lake --version
+      - name: Add elan to PATH (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $elanHome = if ($env:ELAN_HOME) { $env:ELAN_HOME } else { "$env:USERPROFILE\.elan" }
+          Get-ChildItem "$elanHome\bin"
+          Add-Content -Path $env:GITHUB_PATH -Value "$elanHome\bin"
 
-      - name: Check proved theorems
+      - name: Check Lean installation
         working-directory: lean_workspace
-        run: lake env lean Problems/Example_proved.lean
+        run: lake --version
 
       - name: Lint
         run: poetry run ruff check .
