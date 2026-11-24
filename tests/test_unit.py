@@ -30,9 +30,8 @@ SORRY = lean_result(
 ERROR = lean_result(LeanMessage("error", "unsolved goals", 2, 5), returncode=1)
 NATIVE_DECIDE = lean_result(axioms("t._native.native_decide.ax_1_1"))
 
-
+# Plays LeanRunner, returns prepared results one after another.
 class FakeLean:
-    """Plays LeanRunner: returns the prepared results one after another."""
 
     def __init__(self, *results: LeanResult):
         self.results = list(results)
@@ -42,9 +41,8 @@ class FakeLean:
         self.code = code
         return self.results.pop(0)
 
-
+# Plays Anthropic client, each answer asks to check one proof.
 class FakeClaude:
-    """Plays the Anthropic client: each answer asks to check one proof."""
 
     def __init__(self, *proofs: str):
         self.proofs = list(proofs)
@@ -58,7 +56,7 @@ class FakeClaude:
         return SimpleNamespace(content=[block], stop_reason="tool_use", usage=usage)
 
 
-# --- lean_runner ------------------------------------------------------------
+# --- lean_runner -------
 
 
 def test_parse_lean_json_output():
@@ -79,7 +77,7 @@ def test_crash_without_messages_is_not_success():
     assert not lean_result(returncode=1).is_success
 
 
-# --- verifier ---------------------------------------------------------------
+# --- verifier -------
 
 
 def test_honest_proof_is_verified_and_statement_is_ours():
@@ -95,7 +93,7 @@ def test_cheating_or_wrong_proofs_are_rejected(result):
     assert not verify(STATEMENT, PROOF, FakeLean(result)).verified
 
 
-# --- agent ------------------------------------------------------------------
+# --- agent -------
 
 
 def test_agent_retries_after_rejection_and_succeeds():
