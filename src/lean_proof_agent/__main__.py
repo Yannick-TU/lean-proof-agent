@@ -17,6 +17,7 @@ from lean_proof_agent.agent import DEFAULT_MODEL, prove
 from lean_proof_agent.lean_runner import HEADER, LeanRunner
 from lean_proof_agent.verifier import build_lean_code
 
+
 # Find 'theorem foo ... := by sorry' in a Lean file, return 'theorem foo ...'
 def read_statement(path: Path) -> str:
 
@@ -66,4 +67,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-    

@@ -30,9 +30,9 @@ SORRY = lean_result(
 ERROR = lean_result(LeanMessage("error", "unsolved goals", 2, 5), returncode=1)
 NATIVE_DECIDE = lean_result(axioms("t._native.native_decide.ax_1_1"))
 
+
 # Plays LeanRunner, returns prepared results one after another.
 class FakeLean:
-
     def __init__(self, *results: LeanResult):
         self.results = list(results)
         self.code = None
@@ -41,9 +41,9 @@ class FakeLean:
         self.code = code
         return self.results.pop(0)
 
+
 # Plays Anthropic client, each answer asks to check one proof.
 class FakeClaude:
-
     def __init__(self, *proofs: str):
         self.proofs = list(proofs)
         self.messages = self  # so that client.messages.create(...) works
