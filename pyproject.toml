@@ -21,3 +21,7 @@ dev = [
     "pytest (>=9.2.0,<10.0.0)",
     "ruff (>=0.17.5,<0.18.0)"
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["lean: runs the real Lean compiler (slow, needs lake)"]

@@ -1,4 +1,4 @@
-#check three small Lean snippets.
+# check three small Lean snippets.
 
 import subprocess
 import tempfile
