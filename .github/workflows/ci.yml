@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Install Python dependencies
+        run: poetry install --with dev
+
+      - name: Install Lean and build Lean project
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean_workspace
+          auto-config: false
+          build: true
+
+      - name: Check Lean installation
+        run: lake --version
+
+      - name: Check proved theorems
+        working-directory: lean_workspace
+        run: lake env lean Problems/Example_proved.lean
+
+      - name: Lint
+        run: poetry run ruff check .
+
+      - name: Check formatting
+        run: poetry run ruff format --check .
+
+      - name: Run tests
+        run: poetry run pytest

@@ -54,7 +54,7 @@ def main() -> int:
         f"\n{status} after {len(result.attempts)} attempt(s), {result.duration_s:.0f} s"
     )
     print(f"Tokens: {result.input_tokens} in / {result.output_tokens} out")
-    if not result.proved:
+    if result.proof is None:
         return 1
 
     code, _ = build_lean_code(statement, result.proof)
@@ -66,3 +66,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+    
