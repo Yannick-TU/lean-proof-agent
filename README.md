@@ -1,37 +1,53 @@
-## lean-proof-agent
+# lean-proof-agent
 
 An LLM agent proving mathematical theorems in **Lean 4**. 
-Using Claude (Anthropic API), proposes proofs, Lean compiler checks them. A theorem only counts as proved once Lean has accepted the proof without `sorry` and using only
-Lean's standard axioms.
+Using Claude (Anthropic API) it proposes proofs, the Lean compiler checks them. A proof is only accepted if Lean verifies it without errors, without sorry, and without relying on non-standard axioms.
 
-## Setup
+## Requirements
 
-Requirements: Python ≥ 3.13, [Poetry](https://python-poetry.org/),
-Lean 4 via [elan](https://github.com/leanprover/elan), an Anthropic API key.
+- Python ≥ 3.13, [Poetry](https://python-poetry.org/)
+- Anthropic API key
+- Lean 4 via [elan](https://github.com/leanprover/elan), an Anthropic API key
 
+The Lean workspace specifies Lean 4.36.0 and uses Mathlib as its mathematical library.
+
+## Installation
+
+```bash
+poetry install --with dev
+cd lean_workspace && lake exe cache get && lake build && cd ..
+```
+
+Create a `.env` file in the project root (never commit it):
+
+```dotenv
+ANTHROPIC_API_KEY=your_api_key_here
+```
 
 ## Usage
 
-1. Write a theorem in a Lean file (`lean_workspace/Problems/`), with `sorry` as     proof.
-2. Claude proposes a proof and checks it with the tool `check_proof`.
-3. The verifier runs Lean on it. If the proof is rejected, Claude gets
-   Lean's error messages and tries again.
-4. This repeats until the proof is verified or the attempts are used up.
+1. Write a theorem in a Lean file (`lean_workspace/Problems/`), with `sorry` as     proof e.g. `Example.lean`:
 
-# Example
-    ```lean
-    import Mathlib
+   ```lean
+   import Mathlib
 
-    theorem gauss_sum (n : ℕ) : 2 * (∑ i ∈ Finset.range (n + 1), i) = n * (n + 1) := by
-    sorry
-    ```
-Run the agent from the project root (inside the Poetry environment,
-or prefix the command with `poetry run`):
-```bash
-python -m lean_proof_agent lean_workspace/Problems/Example.lean
-python -m lean_proof_agent lean_workspace/Problems/Example.lean --attempts 10 --model claude-opus-5-5
-```
-If a proof is found, it is saved as `Example_proved.lean` next to the input file.
+   theorem gauss_sum (n : ℕ) :
+       2 * (∑ i ∈ Finset.range (n + 1), i) = n * (n + 1) := by
+     sorry
+   ```
+
+2. Run the agent from the project root:
+
+   ```bash
+   poetry run python -m lean_proof_agent lean_workspace/Problems/Example.lean
+   ```
+
+   Options: `--attempts N` (default: 5), `--model model_id` (e.g. `claude-opus-5-5`)
+
+
+3. Claude proposes a proof and checks it with the `check_proof` tool. If Lean rejects it, Claude gets the error messages and tries again until the proof is verified or the attempts run out.
+
+4. A verified proof is saved next to the input file as `Example_proved.lean`, including the output of `#print axioms`.
 
 ## Tests
 
@@ -39,3 +55,10 @@ If a proof is found, it is saved as `Example_proved.lean` next to the input file
 pytest -m "not lean"   # fast tests, Lean and Claude are faked
 pytest                 # also runs 2 tests with the real Lean compiler (~40 s)
 ```
+
+
+## Security
+**Not a Sandbox!**
+Lean is run as a regular local process with your user permission.
+Lean code can execute arbitrary programs during checking (e.g. via `#eval`),
+only use this tool with trusted theorem files.
