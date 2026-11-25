@@ -10,9 +10,12 @@ from __future__ import annotations
 
 import logging
 import time
+
 from dataclasses import dataclass
+from typing import Any, cast
 
 import anthropic
+from anthropic.types import MessageParam, ToolParam
 
 from lean_proof_agent.lean_runner import LeanRunner
 from lean_proof_agent.verifier import Verdict, build_lean_code, verify
@@ -30,7 +33,7 @@ messages carefully, fix the proof and check again. Proofs that use `sorry`, `adm
 `native_decide` are always rejected.
 """
 # Tool definition, allows Claude to verify proofs with Lean
-CHECK_PROOF_TOOL = {
+CHECK_PROOF_TOOL : ToolParam = {
     "name": "check_proof",
     "description": (
         "Check a proof of the theorem with Lean 4 and Mathlib. "
@@ -110,7 +113,7 @@ def prove(
 ) -> ProofResult:
 
     start = time.perf_counter()
-    messages = [{"role": "user", "content": f"Prove this theorem: \n\n{statement}"}]
+    messages: list[MessageParam] = [{"role": "user", "content": f"Prove this theorem: \n\n{statement}"}]
     attempts: list[Attempt] = []
     input_tokens = output_tokens = 0
     proof_found: str | None = None
@@ -140,6 +143,7 @@ def prove(
         for block in response.content:
             if block.type != "tool_use":
                 continue
+            tool_input = cast(dict[str, Any], block.input)
             proof = block.input.get("proof", "")
             verdict = verify(statement, proof, checker)
             attempts.append(Attempt(proof, verdict.verified, verdict.problems))
