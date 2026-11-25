@@ -1,6 +1,8 @@
 """Command line entry point:  python -m lean_proof_agent <file.lean>
 
-The Lean file contains the theorem to prove, with `sorry` as proof.
+The Lean file must contain exactly one theorem or lemma with `sorry` as proof.
+Only the statement is used: the theorem is checked with the fixed HEADER, so it
+must not depend on imports, `open`, `variable` or definitions from the input file.
 If Claude finds a proof that Lean verifies, it is saved next to the input file.
 """
 
@@ -18,16 +20,23 @@ from lean_proof_agent.lean_runner import HEADER, LeanRunner
 from lean_proof_agent.verifier import build_lean_code
 
 
+STATEMENT_PATTERN = re.compile(
+    r"^((?:theorem|lemma)\s(?:(?!:=).)*?)\s*:=\s*(?:by\s+)?sorry\b",
+    re.MULTILINE | re.DOTALL,
+)
+
 # Find 'theorem foo ... := by sorry' in a Lean file, return 'theorem foo ...'
 def read_statement(path: Path) -> str:
 
     text = path.read_text(encoding="utf-8")
-    pattern = r"^((?:theorem|lemma)\s.*?)\s*:=\s*(?:by\s+)?sorry"
-    match = re.search(pattern, text, re.MULTILINE | re.DOTALL)
-    if match is None:
+    statements = STATEMENT_PATTERN.findall(text)
+    if not statements: 
         raise ValueError(f"No theorem ending with ':= by sorry' found in {path}")
-    return match.group(1)
-
+    if len(statements) > 1:
+        raise ValueError(
+            f"Found {len(statements)} theorems with sorry in {path}, expected exactly one"
+        )
+    return statements[0]
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Let Claude prove a Lean theorem.")
