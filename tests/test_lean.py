@@ -1,6 +1,6 @@
 """End-to-end tests with the real Lean compiler (slow, about 20 s each).
 
-Skip them with:  pytest -m "not lean"
+Skip them with pytest -m "not lean"
 """
 
 import shutil

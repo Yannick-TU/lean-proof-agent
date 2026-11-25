@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import logging
 import time
-
 from dataclasses import dataclass
 from typing import Any, cast
 
@@ -33,7 +32,7 @@ messages carefully, fix the proof and check again. Proofs that use `sorry`, `adm
 `native_decide` are always rejected.
 """
 # Tool definition, allows Claude to verify proofs with Lean
-CHECK_PROOF_TOOL : ToolParam = {
+CHECK_PROOF_TOOL: ToolParam = {
     "name": "check_proof",
     "description": (
         "Check a proof of the theorem with Lean 4 and Mathlib. "
@@ -113,7 +112,9 @@ def prove(
 ) -> ProofResult:
 
     start = time.perf_counter()
-    messages: list[MessageParam] = [{"role": "user", "content": f"Prove this theorem: \n\n{statement}"}]
+    messages: list[MessageParam] = [
+        {"role": "user", "content": f"Prove this theorem: \n\n{statement}"}
+    ]
     attempts: list[Attempt] = []
     input_tokens = output_tokens = 0
     proof_found: str | None = None

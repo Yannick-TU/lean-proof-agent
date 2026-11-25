@@ -20,13 +20,13 @@ DEFAULT_PROJECT_DIR = Path(__file__).resolve().parents[2] / "lean_workspace"
 
 # Run the provided Lean code and return its output.
 # frozen=True prevents attributes from being reassigned after initialization.
-# -> protects Lean's results from accidental modification (e.g. a removed sorry warning).
+# -> protects Lean results from accidental modification (e.g. a removed sorry warning).
 
 
 # Message reported by lean: error, warning or information
 @dataclass(frozen=True)
 class LeanMessage:
-    severity: str  # "error", "warning" or "information"
+    severity: str  # error, warning or information
     text: str
     line: int  # 1-based
     column: int  # 0-based
@@ -51,7 +51,7 @@ class LeanResult:
     messages: tuple[LeanMessage, ...]
     returncode: int | None  # none if lean is stopped by timeout
     stderr: str
-    duration_s: float  # time spent
+    duration_s: float
     timed_out: bool = False
 
     @property
@@ -63,7 +63,6 @@ class LeanResult:
         return any(m.is_sorry for m in self.messages)
 
     # True only if Lean finished normally, no errors no sorry.
-    #  crash or a missing toolchain produces no JSON messages -> no errors not enough.
     @property
     def is_success(self) -> bool:
         return (
@@ -110,7 +109,7 @@ class LeanRunner:
 
         start = time.perf_counter()
 
-        # ignore_cleanup_errors: on Windows, Lean may still hold the file briefly.
+        # ignore_cleanup_errors: on Windows, Lean may still hold the file briefly
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp_dir:
             lean_file = Path(tmp_dir) / "Check.lean"
             lean_file.write_text(HEADER + code + "\n", encoding="utf-8")

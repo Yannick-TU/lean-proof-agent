@@ -15,14 +15,14 @@ from dataclasses import dataclass
 
 from lean_proof_agent.lean_runner import LeanResult, LeanRunner
 
-# The three axioms of Lean's standard foundations. Anything else is rejected.
+# The three axioms of Lean's standard foundations. Anything else is rejected
 STANDARD_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
 
 
 # Result of verifiying one proof
 @dataclass(frozen=True)
 class Verdict:
-    problems: tuple[str, ...]  # why the proof was rejected (empty if verified)
+    problems: tuple[str, ...]  # why the proof was rejected
     lean_result: LeanResult
 
     @property
@@ -58,7 +58,7 @@ def used_axioms(result: LeanResult, axioms_line: int) -> set[str] | None:
     return None
 
 
-# Check whether proof of statement is genuine with Lean.
+# Check whether proof of statement is genuine with Lean
 def verify(statement: str, proof: str, checker: LeanRunner) -> Verdict:
 
     code, axioms_line = build_lean_code(statement, proof)
@@ -74,7 +74,7 @@ def verify(statement: str, proof: str, checker: LeanRunner) -> Verdict:
     elif result.returncode != 0:
         problems.append(f"Lean failed with exit code {result.returncode}")
     else:
-        # Lean accepted the proof, check which axioms it relies on.
+        # Lean accepted the proof, checking which axioms it relies on
         axioms = used_axioms(result, axioms_line)
         if axioms is None:
             problems.append("could not read the axioms used")

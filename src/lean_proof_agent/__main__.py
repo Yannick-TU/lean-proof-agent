@@ -19,24 +19,25 @@ from lean_proof_agent.agent import DEFAULT_MODEL, prove
 from lean_proof_agent.lean_runner import HEADER, LeanRunner
 from lean_proof_agent.verifier import build_lean_code
 
-
 STATEMENT_PATTERN = re.compile(
     r"^((?:theorem|lemma)\s(?:(?!:=).)*?)\s*:=\s*(?:by\s+)?sorry\b",
     re.MULTILINE | re.DOTALL,
 )
+
 
 # Find 'theorem foo ... := by sorry' in a Lean file, return 'theorem foo ...'
 def read_statement(path: Path) -> str:
 
     text = path.read_text(encoding="utf-8")
     statements = STATEMENT_PATTERN.findall(text)
-    if not statements: 
+    if not statements:
         raise ValueError(f"No theorem ending with ':= by sorry' found in {path}")
     if len(statements) > 1:
         raise ValueError(
             f"Found {len(statements)} theorems with sorry in {path}, expected exactly one"
         )
     return statements[0]
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Let Claude prove a Lean theorem.")
