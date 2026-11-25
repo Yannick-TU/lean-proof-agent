@@ -124,12 +124,13 @@ def prove(
             max_tokens=max_tokens,
             system=SYSTEM_PROMPT,
             tools=[CHECK_PROOF_TOOL],
+            tool_choice={"type": "auto", "disable_parallel_tool_use": True},
             messages=messages,
         )
         input_tokens += response.usage.input_tokens
         output_tokens += response.usage.output_tokens
 
-        # The API is stateless, we store Claudes rsponse in conversation history
+        # The API is stateless, we store Claudes response in conversation history
         messages.append({"role": "assistant", "content": response.content})
 
         if response.stop_reason != "tool_use":
@@ -139,12 +140,15 @@ def prove(
             break
         tool_results = []
 
-        # Checking Clauds answer
+        # Checking Claudes answer
         for block in response.content:
             if block.type != "tool_use":
                 continue
+            # A response can have several tool_use blocks, stop once a proof is verified
+            if proof_found is not None or len(attempts) >= max_attempts:
+                break
             tool_input = cast(dict[str, Any], block.input)
-            proof = block.input.get("proof", "")
+            proof = str(tool_input.get("proof", ""))
             verdict = verify(statement, proof, checker)
             attempts.append(Attempt(proof, verdict.verified, verdict.problems))
             logger.info(
