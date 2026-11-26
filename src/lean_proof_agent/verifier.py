@@ -1,10 +1,10 @@
 """Decide whether a proof from Claude really proves the given statement.
 
 A proof is accepted only if
-1. Lean reports no errors and no `sorry`, and
-2. it uses only Lean's three standard axioms (this rejects e.g. `native_decide`).
+1. Lean reports no errors and no sorry, and
+2. it uses only Lean's three standard axioms (this rejects e.g. native_decide).
 
-Claude cannot change the statement: it only supplies the proof, the statement is inserted by us.
+Claude cant change the statement, it only gives the proof, the statement is given by us.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 from lean_proof_agent.lean_runner import LeanResult, LeanRunner
 
-# The three axioms of Lean's standard foundations. Anything else is rejected
+# The three axioms of Leans standard foundations, anything else is rejected
 STANDARD_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
 
 
@@ -30,7 +30,7 @@ class Verdict:
         return not self.problems
 
 
-# Put our statement and Claude's proof together and add an axiom check
+# Put our statement and Claudes proof together and add an axiom check
 # -> the theorem without proof + everything after `:=`, e.g. 'by simp'
 # Returns Lean Code and Line number of `#print axioms`
 def build_lean_code(statement: str, proof: str) -> tuple[str, int]:
@@ -50,9 +50,9 @@ def used_axioms(result: LeanResult, axioms_line: int) -> set[str] | None:
 
     for message in result.messages:
         if message.line == axioms_line and message.severity == "information":
-            # e.g. "'foo' depends on axioms: [propext, Classical.choice, Quot.sound]"
+            # e.g. foo depends on axioms: [propext, Classical.choice, Quot.sound]
             match = re.search(r"\[(.*)\]", message.text, re.DOTALL)
-            if match is None:  # "'foo' does not depend on any axioms"
+            if match is None:  # foo does not depend on any axioms
                 return set()
             return {axiom.strip() for axiom in match.group(1).split(",")}
     return None

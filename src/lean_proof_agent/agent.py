@@ -1,9 +1,9 @@
-"""The proof agent: Claude proposes proofs, Lean checks them, errors are fed back.
+"""The proof agent, Claude proposes proofs, Lean checks them, errors are fed back.
 
-1. Claude gets the theorem and a tool `check_proof`.
+1. Claude gets the theorem and a tool check_proof.
 2. Claude calls the tool with a proof attempt.
-3. We check the attempt with the verifier (Lean) and send the result back to Claude.
-4. Repeat until a proof is verified, Claude stops, or `max_attempts` is reached.
+3. We check the attempt with the verifier using Lean and send the result back to Claude.
+4. Repeat until a proof is verified or Claude stops or max_attempts is reached.
 """
 
 from __future__ import annotations
@@ -101,7 +101,7 @@ def format_feedback(statement: str, proof: str, verdict: Verdict) -> str:
     return text
 
 
-# Claude proves a statement and checks every attempt with Lean.
+# Claude proves a statement and checks every attempt with Lean
 def prove(
     statement: str,
     client: anthropic.Anthropic,
@@ -131,7 +131,7 @@ def prove(
         input_tokens += response.usage.input_tokens
         output_tokens += response.usage.output_tokens
 
-        # The API is stateless, we store Claudes response in conversation history
+        # Store Claudes response in conversation history
         messages.append({"role": "assistant", "content": response.content})
 
         if response.stop_reason != "tool_use":

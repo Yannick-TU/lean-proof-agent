@@ -1,4 +1,4 @@
-"""Fast tests: Lean and Claude are replaced by fakes (no Lean, no API costs)."""
+"""Fast tests, Lean and Claude are replaced by fakes (no Lean, no API costs)."""
 
 from types import SimpleNamespace
 
@@ -31,7 +31,7 @@ ERROR = lean_result(LeanMessage("error", "unsolved goals", 2, 5), returncode=1)
 NATIVE_DECIDE = lean_result(axioms("t._native.native_decide.ax_1_1"))
 
 
-# Plays LeanRunner, returns prepared results one after another.
+# Plays LeanRunner and returns prepared results one after another
 class FakeLean:
     def __init__(self, *results: LeanResult):
         self.results = list(results)
@@ -42,7 +42,7 @@ class FakeLean:
         return self.results.pop(0)
 
 
-# Plays Anthropic client, each answer asks to check one proof.
+# Plays Anthropic client and each answer asks to check one proof
 class FakeClaude:
     def __init__(self, *proofs: str):
         self.proofs = list(proofs)
@@ -68,7 +68,7 @@ def test_parse_lean_json_output():
     assert (message.line, message.column, message.is_sorry) == (1, 8, True)
 
 
-def test_sorry_is_not_success_although_lean_exits_with_0():
+def test_sorry_is_not_success_but_lean_exits_with_0():
     assert SORRY.returncode == 0
     assert not SORRY.is_success
 
@@ -80,7 +80,7 @@ def test_crash_without_messages_is_not_success():
 # --- verifier -------
 
 
-def test_honest_proof_is_verified_and_statement_is_ours():
+def test_proof_is_verified_and_statement_is_ours():
     lean = FakeLean(ACCEPTED)
     assert verify(STATEMENT, PROOF, lean).verified
     assert lean.code.startswith(STATEMENT)
@@ -89,7 +89,7 @@ def test_honest_proof_is_verified_and_statement_is_ours():
 @pytest.mark.parametrize(
     "result", [SORRY, ERROR, NATIVE_DECIDE], ids=["sorry", "error", "native_decide"]
 )
-def test_cheating_or_wrong_proofs_are_rejected(result):
+def test_wrong_proofs_are_rejected(result):
     assert not verify(STATEMENT, PROOF, FakeLean(result)).verified
 
 

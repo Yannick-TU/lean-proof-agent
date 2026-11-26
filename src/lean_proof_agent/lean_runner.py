@@ -18,11 +18,6 @@ HEADER_LINES = HEADER.count("\n")
 DEFAULT_PROJECT_DIR = Path(__file__).resolve().parents[2] / "lean_workspace"
 
 
-# Run the provided Lean code and return its output.
-# frozen=True prevents attributes from being reassigned after initialization.
-# -> protects Lean results from accidental modification (e.g. a removed sorry warning).
-
-
 # Message reported by lean: error, warning or information
 @dataclass(frozen=True)
 class LeanMessage:
@@ -41,7 +36,6 @@ class LeanMessage:
         return self.kind == "hasSorry"
 
     def format(self) -> str:
-        """Human-readable form, e.g. '1:8: warning: declaration uses `sorry`'."""
         return f"{self.line}:{self.column}: {self.severity}: {self.text}"
 
 
@@ -73,7 +67,7 @@ class LeanResult:
         )
 
 
-# Parse the output of lean --json. -> one JSON object per line
+# Parsing output of lean --json. -> one JSON object per line
 def parse_messages(stdout: str, line_offset: int = 0) -> tuple[LeanMessage, ...]:
     messages = []
     for raw_line in stdout.splitlines():
@@ -104,12 +98,11 @@ class LeanRunner:
         self.project_dir = project_dir
         self.timeout_s = timeout_s
 
-    # check code with lean, import Mathlib is added automatically.
+    # check code with lean, import Mathlib is added automatically
     def check(self, code: str) -> LeanResult:
 
         start = time.perf_counter()
 
-        # ignore_cleanup_errors: on Windows, Lean may still hold the file briefly
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp_dir:
             lean_file = Path(tmp_dir) / "Check.lean"
             lean_file.write_text(HEADER + code + "\n", encoding="utf-8")
