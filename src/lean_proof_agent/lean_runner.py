@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import shutil
 import json
+import shutil
 import subprocess
 import tempfile
 import time
@@ -94,7 +94,9 @@ class LeanRunner:
         self, project_dir: Path = DEFAULT_PROJECT_DIR, timeout_s: float = 300
     ) -> None:
         if shutil.which("lake") is None:
-            raise FileNotFoundError("Lake was not found, please install Lean 4 via elan.")
+            raise FileNotFoundError(
+                "Lake was not found, please install Lean 4 via elan."
+            )
         if not project_dir.is_dir():
             raise FileNotFoundError(f"Lean project not found: {project_dir}")
         self.project_dir = project_dir

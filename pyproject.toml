@@ -5,6 +5,10 @@ description = "Claude Agent for lean proofs"
 authors = [
     {name = "Yannick Lukas Weimer"}
 ]
+
+license = "MIT"
+readme = "README.md"
+
 requires-python = ">=3.13"
 dependencies = [
     "anthropic (>=2.10.0,<3.0.0)",
