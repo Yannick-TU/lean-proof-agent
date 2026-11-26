@@ -8,8 +8,8 @@ If Claude finds a proof that Lean verifies, it is saved next to the input file.
 
 import argparse
 import logging
-import re
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -62,7 +62,7 @@ def main() -> int:
     result = prove(
         statement,
         client=anthropic.Anthropic(),
-        checker=LeanRunner(),
+        checker=checker,
         model=args.model,
         max_attempts=args.attempts,
     )

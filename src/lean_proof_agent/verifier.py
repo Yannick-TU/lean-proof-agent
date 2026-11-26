@@ -51,7 +51,7 @@ def used_axioms(result: LeanResult, axioms_line: int, name: str) -> set[str] | N
         if message.line == axioms_line and message.severity == "information":
             if not message.text.startswith(f"'{name}' "):
                 return None
-            
+
             # e.g. foo depends on axioms: [propext, Classical.choice, Quot.sound]
             match = re.search(r"\[(.*)\]", message.text, re.DOTALL)
             if match is None:  # foo does not depend on any axioms
