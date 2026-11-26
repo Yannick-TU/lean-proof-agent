@@ -39,7 +39,6 @@ def build_lean_code(statement: str, proof: str) -> tuple[str, int]:
     if match is None:
         raise ValueError(f"Statement must start with 'theorem <name>': {statement!r}")
     name = match.group(1)
-
     body = textwrap.indent(textwrap.dedent(proof).strip(), "  ")
     code = f"{statement.strip()} :=\n{body}\n\n#print axioms {name}"
     return code, code.count("\n") + 1

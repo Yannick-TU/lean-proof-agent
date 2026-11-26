@@ -9,6 +9,7 @@ If Claude finds a proof that Lean verifies, it is saved next to the input file.
 import argparse
 import logging
 import re
+import os
 import sys
 from pathlib import Path
 
@@ -25,7 +26,7 @@ STATEMENT_PATTERN = re.compile(
 )
 
 
-# Find 'theorem foo ... := by sorry' in a Lean file, return 'theorem foo ...'
+# Find theorem foo ... := by sorry in a Lean file, return theorem foo ...
 def read_statement(path: Path) -> str:
 
     text = path.read_text(encoding="utf-8")
@@ -50,7 +51,13 @@ def main() -> int:
     logging.getLogger("httpx").setLevel(logging.WARNING)  # hide HTTP request logs
     load_dotenv()
 
-    statement = read_statement(args.file)
+    try:
+        statement = read_statement(args.file)
+        checker = LeanRunner()
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        parser.error("ANTHROPIC_API_KEY is not set, create a .env file")
     print(f"Proving: {statement}\n")
     result = prove(
         statement,

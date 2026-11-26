@@ -3,7 +3,7 @@ name = "lean-proof-agent"
 version = "0.1.0"
 description = "Claude Agent for lean proofs"
 authors = [
-    {name = "Yannick"}
+    {name = "Yannick Lukas Weimer"}
 ]
 requires-python = ">=3.13"
 dependencies = [
