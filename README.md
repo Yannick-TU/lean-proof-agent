@@ -30,7 +30,7 @@ cd lean_workspace && lake exe cache get && cd ..
 ```
 lake exe cache get downloads the precompiled Mathlib which is several GB.
 
-Create a .env file in the project root and enter you API Key there:
+Create a .env file in the project root and enter your API Key:
 
 ```dotenv
 ANTHROPIC_API_KEY=your_api_key_here
@@ -55,17 +55,17 @@ ANTHROPIC_API_KEY=your_api_key_here
 
    Options are attempts and model: --attempts N (default: 5), --model model_id (e.g. claude-opus-5-5)
 
-3. A verified proof is saved next to the input file as Example_proved.lean, including the output of #print axioms. See Example_proved.lean for the result of the example above.
+3. A verified proof is saved next to the input file as Example_proved.lean. See Example_proved.lean for the result of the example above.
 
 ## Tests
 
 ```bash
-pytest -m "not lean"   # fast tests, Lean and Claude are faked
-pytest                 # also runs 2 tests with the real Lean compiler (~40 s)
+poetry run pytest -m "not lean"  # fast tests, Lean and Claude are faked
+poetry run pytest              # also runs 2 tests with the real Lean compiler (~40 s)
 ```
 
 ## Limitations
-The agent can proof exactly one theorem with sorry per file. The statement can only contain Mathlib terms. User-defined defs or previously proven lemmas in the file are not passed on to Claude. The checks catch the more common ways to cheat by `sorry`, `native_decide` and other extra axioms, or a second theorem with the same name. Other checks are **not** included.
+The agent can prove exactly one theorem with sorry per file. The statement can only contain Mathlib terms. User-defined defs or previously proven lemmas in the file are not passed on to Claude. The checks catch the more common ways to cheat by `sorry`, `native_decide` and other extra axioms, or a second theorem with the same name. Other checks are **not** included.
 
 ## Security
 **Not a Sandbox!**
