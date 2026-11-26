@@ -10,7 +10,7 @@ from lean_proof_agent.verifier import verify
 
 STATEMENT = "theorem t (a b : ℕ) : a + b = b + a"
 PROOF = "by omega"
-AXIOMS_LINE = 4  # statement, proof, empty line, #print axioms
+AXIOMS_LINE = 3  # statement, proof, #print axioms
 
 
 def lean_result(*messages: LeanMessage, returncode: int = 0) -> LeanResult:
