@@ -70,8 +70,7 @@ The agent can prove exactly one theorem with sorry per file. The statement can o
 ## Security
 **Not a Sandbox!**
 Lean is run as a regular local process with your user permission.
-Lean code can execute arbitrary programs during checking (e.g. via `#eval`) including the proofs Claude generates. Only use this tool with trusted theorem files.
-
+Lean code can execute arbitrary programs during checking (e.g. via `#eval`). This applies to the theorem file and to every proof Claude generates. Only run the agent on trusted input,
 ## License
 
 MIT, see [LICENSE](LICENSE).
