@@ -1,3 +1,4 @@
+[![CI](https://github.com/Yannick-TU/lean-claude-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Yannick-TU/lean-claude-agent/actions/workflows/ci.yml)
 # lean-proof-agent
 
 An LLM agent proving mathematical theorems in **Lean 4**. 
