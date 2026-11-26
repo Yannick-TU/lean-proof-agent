@@ -29,9 +29,9 @@ The Lean workspace specifies Lean 4.36.0 and uses Mathlib as its mathematical li
 poetry install --with dev
 cd lean_workspace && lake exe cache get && cd ..
 ```
-lake exe cache get downloads the precompiled Mathlib which is several GB.
+`lake exe cache get` downloads the precompiled Mathlib which is several GB.
 
-Create a .env file in the project root and enter your API Key:
+Create a `.env` file in the project root and enter your API Key:
 
 ```dotenv
 ANTHROPIC_API_KEY=your_api_key_here
@@ -39,7 +39,7 @@ ANTHROPIC_API_KEY=your_api_key_here
 
 ## Usage
 
-1. Write a theorem in a Lean file (lean_workspace/Problems/), with sorry as proof e.g. Example.lean:
+1. Write a theorem in a Lean file (lean_workspace/Problems/), with `sorry` as proof e.g. Example.lean:
 
    ```lean
    import Mathlib
@@ -54,7 +54,7 @@ ANTHROPIC_API_KEY=your_api_key_here
    poetry run python -m lean_proof_agent lean_workspace/Problems/Example.lean
    ```
 
-   Options are attempts and model: --attempts N (default: 5), --model model_id (e.g. claude-opus-5-5)
+   Options are attempts and model: `--attempts N` (default: 5), `--model model_id` (e.g. claude-opus-5-5)
 
 3. A verified proof is saved next to the input file as Example_proved.lean. See Example_proved.lean for the result of the example above.
 
@@ -66,7 +66,7 @@ poetry run pytest              # also runs 2 tests with the real Lean compiler (
 ```
 
 ## Limitations
-The agent can prove exactly one theorem with sorry per file. The statement can only contain Mathlib terms. User-defined defs or previously proven lemmas in the file are not passed on to Claude. The checks catch the more common ways to cheat by `sorry`, `native_decide` and other extra axioms, or a second theorem with the same name. Other checks are **not** included.
+The agent can prove exactly one theorem with sorry per file. The statement can only contain Mathlib terms. User-defined defs or previously proven lemmas in the file are not passed on to Claude. The checks catch the more common ways to cheat meaning: sorry, native_decide and other extra axioms, or a second theorem with the same name. Other ways are not checked.
 
 ## Security
 **Not a Sandbox!**
