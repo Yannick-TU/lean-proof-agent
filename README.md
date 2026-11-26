@@ -1,11 +1,11 @@
 # lean-proof-agent
 
 An LLM agent proving mathematical theorems in **Lean 4**. 
-Using Claude, with Anthropic API, it proposes proofs, the Lean compiler checks them. A proof is only accepted if Lean verifies it without errors, without sorry, and without relying on non-standard axioms.
+Claude proposes proofs through the Anthropic API, the Lean compiler checks them. A proof is only accepted if Lean verifies it without errors, without sorry, and without relying on non-standard axioms.
 
 ## Functioning
 1. The statement is read from a Lean file in which the theorem has `sorry` as its proof.
-2. Claude gets the statement and a tool `check_proof`, it only submits the part after `:=` and hence cannot change what is being proved.
+2. Claude gets the extracted theorem statement and can submit proof attempts through the check_proof tool. The application combines each proof attempt with the original statement, so Claude cannot replace the theorem that is being verified.
 3. Every attempt is checked with Lean and if Lean rejects it Claude gets the reasons and error messages back and tries again.
 4. The run ends when a proof is verified or the attempts run out.
 
