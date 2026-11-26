@@ -45,10 +45,13 @@ def build_lean_code(statement: str, proof: str) -> tuple[str, int]:
 
 
 # Read axioms for the output of `#print axioms`
-def used_axioms(result: LeanResult, axioms_line: int) -> set[str] | None:
+def used_axioms(result: LeanResult, axioms_line: int, name: str) -> set[str] | None:
 
     for message in result.messages:
         if message.line == axioms_line and message.severity == "information":
+            if not message.text.startswith(f"'{name}' "):
+                return None
+            
             # e.g. foo depends on axioms: [propext, Classical.choice, Quot.sound]
             match = re.search(r"\[(.*)\]", message.text, re.DOTALL)
             if match is None:  # foo does not depend on any axioms
@@ -61,6 +64,7 @@ def used_axioms(result: LeanResult, axioms_line: int) -> set[str] | None:
 def verify(statement: str, proof: str, checker: LeanRunner) -> Verdict:
 
     code, axioms_line = build_lean_code(statement, proof)
+    name = code.rsplit("#print axioms ", 1)[1]  # the name in our last line
     result = checker.check(code)
 
     problems = []
@@ -74,7 +78,7 @@ def verify(statement: str, proof: str, checker: LeanRunner) -> Verdict:
         problems.append(f"Lean failed with exit code {result.returncode}")
     else:
         # Lean accepted the proof, checking which axioms it relies on
-        axioms = used_axioms(result, axioms_line)
+        axioms = used_axioms(result, axioms_line, name)
         if axioms is None:
             problems.append("could not read the axioms used")
         elif not axioms <= STANDARD_AXIOMS:

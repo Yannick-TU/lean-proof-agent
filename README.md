@@ -3,6 +3,17 @@
 An LLM agent proving mathematical theorems in **Lean 4**. 
 Using Claude, with Anthropic API, it proposes proofs, the Lean compiler checks them. A proof is only accepted if Lean verifies it without errors, without sorry, and without relying on non-standard axioms.
 
+## Functioning
+1. The statement is read from a Lean file in which the theorem has `sorry` as its proof.
+2. Claude gets the statement and a tool `check_proof`, it only submits the part after `:=` and hence cannot change what is being proved.
+3. Every attempt is checked with Lean and if Lean rejects it Claude gets the reasons and error messages back and tries again.
+4. The run ends when a proof is verified or the attempts run out.
+
+A proof counts as verified only if
+
+- Lean reports no errors and no `sorry`, and
+- `#print axioms` shows that the theorem relies only on the standard axioms of Lean namely (`propext`, `Classical.choice`, `Quot.sound`). This rejects for example `native_decide`, which trusts compiled code.
+
 ## Requirements
 
 - Python ≥ 3.13, [Poetry](https://python-poetry.org/)
@@ -15,10 +26,11 @@ The Lean workspace specifies Lean 4.36.0 and uses Mathlib as its mathematical li
 
 ```bash
 poetry install --with dev
-cd lean_workspace && lake exe cache get && lake build && cd ..
+cd lean_workspace && lake exe cache get && cd ..
 ```
+lake exe cache get downloads the precompiled Mathlib which is several GB.
 
-Create a .env file in the project root:
+Create a .env file in the project root and enter you API Key there:
 
 ```dotenv
 ANTHROPIC_API_KEY=your_api_key_here
@@ -26,13 +38,12 @@ ANTHROPIC_API_KEY=your_api_key_here
 
 ## Usage
 
-1. Write a theorem in a Lean file (lean_workspace/Problems/), with sorry as     proof e.g. Example.lean:
+1. Write a theorem in a Lean file (lean_workspace/Problems/), with sorry as proof e.g. Example.lean:
 
    ```lean
    import Mathlib
 
-   theorem gauss_sum (n : ℕ) :
-       2 * (∑ i ∈ Finset.range (n + 1), i) = n * (n + 1) := by
+   theorem gauss_sum (n : ℕ) : 2 * (∑ i ∈ Finset.range (n + 1), i) = n * (n + 1) := by
      sorry
    ```
 
@@ -44,10 +55,7 @@ ANTHROPIC_API_KEY=your_api_key_here
 
    Options are attempts and model: --attempts N (default: 5), --model model_id (e.g. claude-opus-5-5)
 
-
-3. Claude proposes a proof and checks it with the check_proof tool. If Lean rejects it, Claude gets the error messages and tries again until the proof is verified or the attempts run out.
-
-4. A verified proof is saved next to the input file as Example_proved.lean, including the output of #print axioms.
+3. A verified proof is saved next to the input file as Example_proved.lean, including the output of #print axioms. See Example_proved.lean for the result of the example above.
 
 ## Tests
 
@@ -57,10 +65,13 @@ pytest                 # also runs 2 tests with the real Lean compiler (~40 s)
 ```
 
 ## Limitations
-The agent can proof exactly one theorem with := by sorry per file. The statement can only contain Mathlib terms. User-defined defs or previously proven lemmas in the file are not passed on to Claude.
+The agent can proof exactly one theorem with sorry per file. The statement can only contain Mathlib terms. User-defined defs or previously proven lemmas in the file are not passed on to Claude. The checks catch the more common ways to cheat by `sorry`, `native_decide` and other extra axioms, or a second theorem with the same name. Other checks are **not** included.
 
 ## Security
 **Not a Sandbox!**
 Lean is run as a regular local process with your user permission.
-Lean code can execute arbitrary programs during checking (e.g. via `#eval`),
-only use this tool with trusted theorem files.
+Lean code can execute arbitrary programs during checking (e.g. via `#eval`) including the proofs Claude generates. Only use this tool with trusted theorem files.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
